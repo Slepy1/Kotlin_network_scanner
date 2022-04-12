@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">NetworkScanner</string>
+    <string name="ports_to_scan_1_to">Ports to scan: 1 to</string>
+    <string name="_2000">2000</string>
+    <string name="save">Save</string>
+    <string name="share_your_results">Share your results!</string>
+    <string name="following_ports_are_open">Following ports are open -</string>
+    <string name="_192_168_0_1">192.168.0.1</string>
+    <string name="scan_ports">Scan ports</string>
+    <string name="or_select_detected_device_from_a_list_below">Or select detected device from a list below</string>
+    <string name="find_hosts">Find Hosts</string>
+    <string name="settings">Settings</string>
+</resources>
