@@ -16,11 +16,19 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
+var warningMessageDsiplayed = false
+
 class MainActivity : AppCompatActivity()  {
     private var connManager: ConnectivityManager? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (savedInstanceState != null) {
+            warningMessageDsiplayed = savedInstanceState.getBoolean("warningDisplayed")
+        }
+
+        if (!warningMessageDsiplayed) {//when screen is rotated don't perform these checks again
 
         checkPermissions()
 
@@ -56,7 +64,8 @@ class MainActivity : AppCompatActivity()  {
                 }
             }
         }
-        alertDialogBuilder.show()
+            alertDialogBuilder.show()
+        }
 
         //try to get users ip address
         var yourIPAddress = "192.168.0.1"
@@ -103,4 +112,15 @@ class MainActivity : AppCompatActivity()  {
         }
 
     }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {//saves instance when screen is rotated
+        super.onSaveInstanceState(savedInstanceState)
+        savedInstanceState.putBoolean("warningDisplayed", true)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        warningMessageDsiplayed = savedInstanceState.getBoolean("warningDisplayed")
+    }
+
 }

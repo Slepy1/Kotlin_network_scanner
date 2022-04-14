@@ -82,15 +82,4 @@ class scanNetworkForHosts : AppCompatActivity() {
         }
         return false
     }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        // Save the state of item position
-        //outState.putAll()
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-
-    }
 }

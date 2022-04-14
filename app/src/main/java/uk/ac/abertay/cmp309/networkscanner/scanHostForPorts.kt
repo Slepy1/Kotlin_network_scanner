@@ -1,6 +1,8 @@
 package uk.ac.abertay.cmp309.networkscanner
 
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -11,9 +13,11 @@ import android.widget.Button
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.coroutineScope
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.net.Socket
 import java.time.LocalDateTime
+
 
 class scanHostForPorts : AppCompatActivity() {
 
@@ -54,7 +58,7 @@ class scanHostForPorts : AppCompatActivity() {
         }
         catch (e : Exception) {
             Log.e("DEBUG_TAG", e.toString())
-            numberOfPorts = "65535"
+            numberOfPorts = "2000"
         }
 
         //create a notification with progress bar
@@ -82,20 +86,23 @@ class scanHostForPorts : AppCompatActivity() {
         //start the scan
          lifecycle.coroutineScope.launch(Dispatchers.IO) {//this cool "thread like thing" allows app to run in the background
             for (port in 1..numberOfPorts.toInt()) {
-                try {
-                    val socket = Socket(iPAddress, port)//if connection is successful then the port is open
-                    if (socket.isConnected)
-                    {
-                        listOfOpenPorts.add(port.toString())
-                        runOnUiThread {//update listview when new item was added, it has to be done from the ui thread
-                            arrayAdapter.notifyDataSetChanged()
+
+                    try {
+                       // var socket = Socket(iPAddress, port)//if connection is successful then the port is open
+                       val socket = Socket(iPAddress, port) //it will lag when scanning filtered ports as this does not have anything to change the timeout - https://github.com/nodejs/node/issues/5757
+                        //due to time limitation this has to stay ....
+                        if (socket.isConnected) {
+                            listOfOpenPorts.add(port.toString())
+                            runOnUiThread {//update listview when new item was added, it has to be done from the ui thread
+                                arrayAdapter.notifyDataSetChanged()
+                            }
+                            Log.d("open port", "Port $port is open")
                         }
-                        Log.d("open port", "Port $port is open")
+                        socket.close()
+
+                    } catch (e: Exception) { // An error is thrown when Socket cannot be created, that means its closed, or something went wrong... works in both cases.
+                        Log.e("error", "scanning port $port - $e")
                     }
-                    socket.close()
-                } catch (e: Exception) { // An error is thrown when Socket cannot be created, that means its closed, or something went wrong... works in both cases.
-                    Log.e("error", "scanning port $port - $e")
-                }
 
                 if ((port % 30) == 1 ) { //use modulo function to limit number of progress bar notification updates , y % x means it will update every x times
                     textNotification!!.setProgress(progressBarMax, port, false)//updates progress bar in the notification
@@ -113,7 +120,7 @@ class scanHostForPorts : AppCompatActivity() {
         super.onBackPressed()//when user tries to go back stop the scan and finish the notification
         textNotification!!.setContentText("Scan Stopped!").setProgress(0, 0, false)
         notificationManager!!.notify(NOTIFICATION_ID_TEXT, textNotification!!.build())
-        onDestroy()//there are better ways of doing this but im low on time...
+        //onDestroy()//there are better ways of doing this but im low on time...
     }
 
     private fun initNotificationChannels() {
